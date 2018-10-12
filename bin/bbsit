@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'bbsit'
+
+framework = ARGV[0] || 'rspec'
+sitter = BBSit::BBSitter.new(framework: framework)
+
+sitter.run
