@@ -8,4 +8,6 @@ require "bbsit"
 
 # (If you use this, don't forget to add pry to your Gemfile!)
 require "pry"
+
+puts BBSit.root
 Pry.start

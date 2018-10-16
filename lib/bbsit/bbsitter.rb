@@ -1,5 +1,6 @@
 require 'filewatcher'
 require 'open3'
+require 'terminal-notifier'
 
 module BBSit
   CODE_DIRECTORIES = %w[app lib].freeze
@@ -17,12 +18,12 @@ module BBSit
     }
   }.freeze
 
-  # BBSitter knows how to watch for changes in code and look for corresponding tests
-  # under a spec/ or test/ folder.  If found, it will run tests.
+  # BBSitter watches for changes in code and looks for corresponding tests to run.
   class BBSitter
-    def initialize(framework: 'rspec', watch: CODE_DIRECTORIES)
+    def initialize(framework: 'rspec', watch: CODE_DIRECTORIES, notify: false)
       @framework = FRAMEWORKS[framework.to_sym]
       @watch = watch
+      @notify = notify
     end
 
     def watch_patterns
@@ -47,31 +48,50 @@ module BBSit
 
     def run_test(filename)
       cmd = "#{@framework[:cmd]} #{filename}"
-      puts "Running \"#{cmd}\"..."
+      log "Running \"#{cmd}\"..."
+      output_arr = []
+
       Open3.popen3(cmd) do |_stdout, stderr, _status, _thread|
         while (line = stderr.gets)
-          puts line
+          output_arr << line
+          log line
         end
       end
+
+      output_arr
+    end
+
+    def notify(output_lines)
+      TerminalNotifier.notify(
+        'bbsit',
+        subtitle: 'Run complete',
+        title: output_lines.last.chomp,
+        appIcon: File.join(BBSit.root, 'lib', 'images', 'girlbaby.png')
+      )
     end
 
     def run
-      puts 'Listening for changes...'
+      Filewatcher.new(watch_patterns, spinner: true).watch do |filename, _event|
+        log "Change detected: #{filename}".yellow
 
-      Filewatcher.new(watch_patterns).watch do |filename, _event|
         if /#{@framework[:suffix]}$/ =~ filename
           run_test(filename)
         else
           test_path = get_test_path(filename)
           if File.exist?(test_path)
-            run_test(test_path)
+            output = run_test(test_path)
+            notify(output) if @notify
           else
-            puts "No test found at #{test_path}"
+            log "No test found at #{test_path}".yellow
           end
         end
 
-        puts 'Listening for changes...'
+        log 'Listening for changes...'.yellow
       end
+    end
+
+    def log(str)
+      str.yellow
     end
   end
 end
