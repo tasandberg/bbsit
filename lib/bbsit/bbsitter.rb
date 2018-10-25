@@ -55,7 +55,7 @@ module BBSit
       Open3.popen3(cmd) do |_stdout, stderr, _status, _thread|
         while (line = stderr.gets)
           output_arr << line
-          log line
+          puts line
         end
       end
 
@@ -72,7 +72,6 @@ module BBSit
     end
 
     def run
-      log "Watching #{watch_patterns.join(",")}"
       Filewatcher.new(watch_patterns, spinner: true).watch do |filename, _event|
         log "Change detected: #{filename}"
         if /#{@framework[:suffix]}$/ =~ filename
@@ -83,16 +82,14 @@ module BBSit
             output = run_test(test_path)
             notify(output) if @notify
           else
-            log "No test found at #{test_path}".yellow
+            log "No test found at #{test_path}"
           end
         end
-
-        log 'Listening for changes...'.yellow
       end
     end
 
-    def log(str)
-      puts str.yellow
+    def log(str, color = :yellow)
+      puts str.send(color)
     end
   end
 end
