@@ -3,7 +3,7 @@ require 'open3'
 require 'terminal-notifier'
 
 module BBSit
-  CODE_DIRECTORIES = %w[app lib].freeze
+  CODE_DIRECTORIES = %w(app lib).freeze
 
   FRAMEWORKS = {
     rspec: {
@@ -27,22 +27,23 @@ module BBSit
     end
 
     def watch_patterns
-      patterns = @watch.map { |dir| File.join(dir, '**/*.rb') }
-      patterns + [File.join(@framework[:dir], "**/*#{@framework[:suffix]}")]
+      current_dir = Dir.pwd
+      patterns = @watch.map { |dir| File.join(current_dir, dir, '**/*.rb') }
+      patterns + [File.join(current_dir, @framework[:dir], "**/*#{@framework[:suffix]}")]
     end
 
     def disect_path(filename)
-      regex = /^(?<absolute_path>.*)\/(#{@watch.join('|')})\/(?<local_path>.*)\/(?<file>.*\.rb)/
+      regex = /^(.*)\/(#{@watch.join('|')})\/(.*\.rb)/
       regex.match(filename)
     end
 
     def get_test_path(filename)
       captures = disect_path(filename)
+
       File.join(
-        captures[:absolute_path],
+        captures[1],
         @framework[:dir],
-        captures[:local_path],
-        captures[:file].gsub('.rb', @framework[:suffix])
+        captures[3].gsub('.rb', @framework[:suffix])
       )
     end
 
@@ -71,9 +72,9 @@ module BBSit
     end
 
     def run
+      log "Watching #{watch_patterns.join(",")}"
       Filewatcher.new(watch_patterns, spinner: true).watch do |filename, _event|
-        log "Change detected: #{filename}".yellow
-
+        log "Change detected: #{filename}"
         if /#{@framework[:suffix]}$/ =~ filename
           run_test(filename)
         else
@@ -91,7 +92,7 @@ module BBSit
     end
 
     def log(str)
-      str.yellow
+      puts str.yellow
     end
   end
 end

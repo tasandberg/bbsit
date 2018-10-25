@@ -1,6 +1,8 @@
 #!/usr/bin/env ruby
 
+require 'bundler/setup'
 require 'bbsit'
+require 'pry'
 
 framework = ARGV[0] || 'rspec'
 sitter = BBSit::BBSitter.new(framework: framework)
