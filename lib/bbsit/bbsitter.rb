@@ -43,6 +43,7 @@ module BBSit
       File.join(
         captures[1],
         @framework[:dir],
+        @framework[:dir] == 'spec' && captures[2] == 'lib' ? 'lib' : '',
         captures[3].gsub('.rb', @framework[:suffix])
       )
     end
