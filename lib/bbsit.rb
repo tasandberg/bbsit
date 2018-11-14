@@ -1,6 +1,9 @@
 require 'bbsit/version'
+require 'bbsit/test_runner'
+require 'bbsit/watcher'
 require 'bbsit/bbsitter'
 require 'bbsit/colors'
+require 'logger'
 
 class Filewatcher
   module Cycles
@@ -15,6 +18,10 @@ class Filewatcher
 end
 
 module BBSit
+  def self.log(str, color = :yellow)
+    puts str.send(color)
+  end
+
   def self.root
     File.dirname __dir__
   end

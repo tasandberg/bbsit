@@ -3,7 +3,8 @@
 require 'bbsit'
 
 framework = ARGV[0] || 'rspec'
-sitter = BBSit::BBSitter.new(framework: framework)
+notify = ARGV.include? '--notify'
+sitter = BBSit::BBSitter.new(framework: framework, notify: notify)
 
 puts "Running for #{framework}"
 
