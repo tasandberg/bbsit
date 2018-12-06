@@ -10,7 +10,6 @@ module BBSit
 
     def run
       @watcher.watch
-
     rescue SystemExit, Interrupt
       puts "\nBye bye!".blue
       exit

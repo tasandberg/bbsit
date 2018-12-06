@@ -33,7 +33,7 @@ module BBSit
       test_path = get_test_path(filename)
 
       if File.exist?(test_path)
-        output = @test_Runner.run(test_path)
+        output = @test_runner.run(test_path)
         notify(output) if @notify
       else
         BBSit.log "No test found at #{test_path}"
