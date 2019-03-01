@@ -1,5 +1,5 @@
 # BBSit
-Like Guard on a diet.  Watch tests and run them as you code.  No need to add a dependency to your Gemfile, no config file required.
+BBSit is like Guard on a diet.  Watch tests and run them as you code.  No need to add a dependency to your Gemfile, no config file required.
 
 ## Installation
 
