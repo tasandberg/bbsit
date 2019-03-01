@@ -1,5 +1,5 @@
 require 'open3'
-
+require 'childprocess'
 module BBSit
   class TestRunner
     def initialize(command)
@@ -9,10 +9,14 @@ module BBSit
     def run(filename)
       cmd = "#{@command} #{filename}"
       puts "Running \"#{cmd}\"...".blue
-      Open3.popen3(cmd) do |_stdout, stderr, _status, _thread|
-        while (line = stderr.gets)
-          puts line
-        end
+      process = ChildProcess.build(*cmd.split(' '))
+      process.io.inherit!
+      process.start
+
+      begin
+        process.poll_for_exit(10)
+      rescue ChildProcess::TimeoutError
+        process.stop # tries increasingly harsher methods to kill the process.
       end
     end
   end
